@@ -29,12 +29,12 @@ export class ArrayStateMachine<I, V, E> extends AbstractStateMachine<I, V[], E> 
             this.cleanup();
         } else if (child.status === Status.Ok) {
             this.values.push(child.value);
-            if (this.children.length === 1) {
+            this.children.shift();
+            if (this.children.length === 0) {
                 this.unconsumedInputs.splice(0, this.unconsumedInputs.length, ...child.unconsumedInputs);
                 this.complete(this.values.splice(0));
                 this.cleanup();
             } else {
-                this.children.shift();
                 this.play(...child.unconsumedInputs);
             }
         }
