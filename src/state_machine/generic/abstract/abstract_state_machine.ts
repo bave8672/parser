@@ -9,22 +9,22 @@ export abstract class AbstractStateMachine<I, V, E>  {
     private _state: Result<V, E> = new Pending();
     private _unconsumedInputs?: I[];
 
-    get unconsumedInputs() {
+    protected get unconsumedInputs() {
         if (!this._unconsumedInputs) {
             this._unconsumedInputs = [];
         }
         return this._unconsumedInputs;
     }
 
-    get status(): Status {
+    protected  get status(): Status {
         return this._state.status;
     }
 
-    get value(): V | undefined {
+    protected  get value(): V | undefined {
         return (this._state as Ok<V>).value;
     }
 
-    get error(): E | undefined {
+    protected get error(): E | undefined {
         return (this._state as Err<E>).error;
     }
 
@@ -47,10 +47,6 @@ export abstract class AbstractStateMachine<I, V, E>  {
         this._unconsumedInputs = state.unconsumedInputs;
     }
 
-    public asStateMachine(): StateMachine<I, V, E> {
-        return this as StateMachine<I, V, E>;
-    }
-
     /** Array equivalent of next() for convenience  */
     protected play(...inputs: I[]): AbstractStateMachine<I, V, E> {
         while (this.status === Status.Pending && inputs.length) {
@@ -61,5 +57,8 @@ export abstract class AbstractStateMachine<I, V, E>  {
         }
         return this;
     }
-}
 
+    public asStateMachine(): StateMachine<I, V, E> {
+        return this as StateMachine<I, V, E>;
+    }
+}

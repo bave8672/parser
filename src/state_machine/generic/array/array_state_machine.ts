@@ -21,7 +21,7 @@ export class ArrayStateMachine<I, V, E> extends AbstractStateMachine<I, V[], E> 
         this.values.splice(0); 
     }
 
-    next(input: I) {
+    protected next(input: I) {
         this.unconsumedInputs.push(input);
         let child = (this.children[0] as PendingStateMachine<I, V, E>).next(input);
         if (child.status === Status.Error) {

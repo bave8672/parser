@@ -1,52 +1,11 @@
 import { Status } from "../../../result/result";
+import { ExactMatchStateMachine } from "../../char/exact_match/exact_match_state_machine";
+import { RegexStateMachine } from "../../char/regex/regex_state_machine";
 import { AbstractStateMachine } from "../abstract/abstract_state_machine";
 import { ArrayStateMachine } from "./array_state_machine";
 
 describe(`Array state machine`, () => {
-    /** Matches an exact string */
-    class ExactMatchStateMachine extends AbstractStateMachine<string, string, string> {
-        private i = 0;
-
-        constructor(private readonly pattern: string) {
-            super();
-        }
-
-        next(input: string) {
-            this.unconsumedInputs.push(input);
-            if (input === this.pattern[this.i]) {
-                this.i++;
-            } else {
-                this.fail(`input ${input} does not match ${this.pattern}`);
-            }
-            if (this.i === this.pattern.length) {
-                this.unconsumedInputs.splice(0);
-                this.complete(this.pattern);
-            }
-            return this;
-        }
-    }
-
-    /** Matches a pattern. Note: Will not terminate until encountering an unmatched char */
-    class RegexStateMachine extends AbstractStateMachine<string, string, string> {
-        private match = '';
-
-        constructor(private readonly pattern: RegExp) {
-            super();
-        }
-
-        next(input: string) {
-            if (this.pattern.test(this.match + input)) {
-                this.match += input;
-            } else if (this.match) {
-                this.unconsumedInputs.push(input);
-                this.complete(this.match);
-            } else {
-                this.unconsumedInputs.push(input);
-                this.fail(`Input ${input} does not mach patter ${this.pattern}`);
-            }
-            return this;
-        }
-    }
+    
 
     it(`Simple match example`, () => {
         let matcher = new ArrayStateMachine<string, string, string>(

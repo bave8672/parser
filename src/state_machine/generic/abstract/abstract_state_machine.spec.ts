@@ -11,7 +11,7 @@ describe(`AbstractStateMachine`, () => {
             super();
         }
 
-        next() {
+        protected next() {
             this.count++;
             if (this.count >= this.limit) {
                 this.complete(this.count);
@@ -32,7 +32,7 @@ describe(`AbstractStateMachine`, () => {
             super();
         }
 
-        next(input: number) {
+        protected next(input: number) {
             this.count += input;
             if (this.count === this.limit) {
                 this.complete(this.count);
@@ -107,7 +107,7 @@ describe(`AbstractStateMachine`, () => {
                 super();
             }
 
-            next(input: I) {
+            protected next(input: I) {
                 if (this.wrapped.status === Status.Pending) {
                     this.wrapped.next(input);
                 }
