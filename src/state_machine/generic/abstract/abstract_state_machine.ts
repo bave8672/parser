@@ -1,5 +1,6 @@
-import { Err, Ok, Pending, Result, Status } from "../../result/result";
-import { StateMachine } from "./state_machine";
+import { Result, Pending, Status, Ok, Err } from "../../../result/result";
+import { StateMachine } from "../state_machine";
+
 
 /**
  * Base class for all state machine implementations
@@ -48,6 +49,17 @@ export abstract class AbstractStateMachine<I, V, E>  {
 
     public asStateMachine(): StateMachine<I, V, E> {
         return this as StateMachine<I, V, E>;
+    }
+
+    /** Array equivalent of next() for convenience  */
+    protected play(...inputs: I[]): AbstractStateMachine<I, V, E> {
+        while (this.status === Status.Pending && inputs.length) {
+            this.next(inputs.shift()!);
+        }
+        if (inputs.length) {
+            this.unconsumedInputs.push(...inputs);
+        }
+        return this;
     }
 }
 
