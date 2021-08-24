@@ -1,6 +1,6 @@
 import { Status } from "../../../result/result";
 import { AbstractStateMachine } from "../abstract/abstract_state_machine";
-import { StateMachine } from "../state_machine";
+import { PendingStateMachine, StateMachine } from "../state_machine";
 
 /**
  * Vector equivalent of a state machine
@@ -23,10 +23,7 @@ export class ArrayStateMachine<I, V, E> extends AbstractStateMachine<I, V[], E> 
 
     next(input: I) {
         this.unconsumedInputs.push(input);
-        let child = this.children[0];
-        if (child.status === Status.Pending) {
-            child = child.next(input);
-        }
+        let child = (this.children[0] as PendingStateMachine<I, V, E>).next(input);
         if (child.status === Status.Error) {
             this.fail(child.error);
             this.cleanup();
