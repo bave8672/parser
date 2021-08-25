@@ -2,22 +2,15 @@ import { AbstractStateMachine } from "../../generic/abstract/abstract_state_mach
 import { ArrayStateMachine } from "../../generic/array/array_state_machine";
 import { StateMachine } from "../../generic/state_machine";
 import { ConcatStateMachine } from "../concat/concat_state_machine";
+import { RegexStateMachineBuilder } from "./regex_state_machine_builder";
 
 /** Matches a pattern */
 export class RegexStateMachine extends ConcatStateMachine<string> {
-    private static buildStateMachineArray(
-        pattern: string,
-        i = 0,
-        j = pattern.length - 1
-    ): StateMachine<string, string, string>[] {
-        const stateMachines: StateMachine<string, string, string>[] = [];
-        while (i < j) {
-
-        }
-        return stateMachines;
-    }
-
-    constructor(private readonly pattern: string) {
-        super(...RegexStateMachine.buildStateMachineArray(pattern));
+    constructor(pattern: string) {
+        super(
+            new ArrayStateMachine(
+                ...new RegexStateMachineBuilder(pattern).build()
+            ).asStateMachine()
+        );
     }
 }
