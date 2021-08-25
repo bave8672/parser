@@ -6,7 +6,7 @@ import { ConcatStateMachine } from "./concat_state_machine";
 
 describe(`Concat state machine`, () => {
     it(`Concats multiple matchers into one result`, () => {
-        let state = new ConcatStateMachine(
+        let state = ConcatStateMachine.fromArray(
             new ExactMatchStateMachine("a").asStateMachine(),
             new ExactMatchStateMachine("bc").asStateMachine(),
             new ExactMatchStateMachine("123").asStateMachine()
@@ -25,7 +25,7 @@ describe(`Concat state machine`, () => {
     });
 
     it(`Surfaces errors from it's children`, () => {
-        let state = new ConcatStateMachine(
+        let state = ConcatStateMachine.fromArray(
             new ExactMatchStateMachine("a").asStateMachine(),
             new ExactMatchStateMachine("bc").asStateMachine(),
             new ExactMatchStateMachine("123").asStateMachine()

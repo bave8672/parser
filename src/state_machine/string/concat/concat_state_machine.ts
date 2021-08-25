@@ -9,15 +9,16 @@ export class ConcatStateMachine<E> extends AbstractStateMachine<
     string,
     E
 > {
-    private readonly child: StateMachine<string, string[], E>;
+    static fromArray<E>(...children: StateMachine<string, string, E>[]) {
+        return new ConcatStateMachine(new ArrayStateMachine(...children).asStateMachine());
+    }
 
-    constructor(...children: StateMachine<string, string, E>[]) {
+    constructor(private readonly child: StateMachine<string, string[], E>) {
         super();
-        this.child = new ArrayStateMachine(...children).asStateMachine();
     }
 
     protected next(input: string) {
-        (this.child as PendingStateMachine<string, string, E>).next(input);
+        (this.child as PendingStateMachine<string, string[], E>).next(input);
         if (this.child.status === Status.Error) {
             this.copy(this.child);
         } else if (this.child.status === Status.Ok) {
