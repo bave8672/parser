@@ -1,5 +1,5 @@
 import { Ok, Status } from "../../../result/result";
-import { ExactMatchStateMachine } from "../../char/exact_match/exact_match_state_machine";
+import { ExactMatchStateMachine } from "../../string/exact_match/exact_match_state_machine";
 import { PendingStateMachine } from "../state_machine";
 import { LazyStateMachine } from "./lazy_state_machine";
 
