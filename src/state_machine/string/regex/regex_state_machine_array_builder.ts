@@ -1,7 +1,10 @@
 import { GreedyStateMachine } from "../../generic/greedy/greedy_state_machine";
 import { NotStateMachine } from "../../generic/not/not_state_machine";
+import { OptionalStateMachine } from "../../generic/optional/optional_state_machine";
 import { StateMachine } from "../../generic/state_machine";
+import { WildcardStateMachine } from "../../generic/wildcard/wildcard_state_machine";
 import { ConcatStateMachine } from "../concat/concat_state_machine";
+import { DigitStateMachine } from "../digit_state_machine/digit_state_machine";
 import { ExactMatchStateMachine } from "../exact_match/exact_match_state_machine";
 import { KleenePlusStateMachine } from "../kleene_plus/kleene_plus_state_machine";
 import { KleeneStarStateMachine } from "../kleene_star/kleene_star_state_machine";
@@ -9,12 +12,12 @@ import { RangeStateMachine } from "../range/range_state_machine";
 import { WhitespaceStateMachine } from "../whitespace_state_machine/whitespace_state_machine";
 import { WordStateMachine } from "../word_state_machine.ts/word_state_machine";
 
-export class RegexStateMachineBuilder {
+export class RegexStateMachineArrayBuilder {
     constructor(private readonly pattern: string) {}
 
     private buildGroup(leftBracketIndex: number) {
-        let rightBracketIndex = leftBracketIndex + 1;
-        while (this.pattern[rightBracketIndex++] !== ")");
+        let rightBracketIndex = leftBracketIndex;
+        while (this.pattern[++rightBracketIndex] !== ")");
         const createStateMachine = () =>
             ConcatStateMachine.fromArray(
                 ...this.build(leftBracketIndex + 1, rightBracketIndex)
@@ -27,16 +30,15 @@ export class RegexStateMachineBuilder {
 
     private buildSet(leftBracketIndex: number) {
         const negate = this.pattern[leftBracketIndex + 1] === "^";
-        let rightBracketIndex = leftBracketIndex + 1;
-        while (this.pattern[rightBracketIndex++] !== "]");
-        const createStateMachine = () => {
+        let rightBracketIndex = leftBracketIndex;
+        while (this.pattern[++rightBracketIndex] !== "]");
+        const createStateMachine = (): StateMachine<string, string, string> => {
             const stateMachines: Array<StateMachine<string, string, string>> =
                 [];
             let i = negate ? leftBracketIndex + 1 : leftBracketIndex;
             while (i < rightBracketIndex) {
                 const char = this.pattern[i];
                 if (char === "\\") {
-                    // todo: escaped match
                     stateMachines.push(this.buildEscaped(i)());
                     i++;
                 } else if (this.pattern[i + 1] === "-") {
@@ -54,7 +56,15 @@ export class RegexStateMachineBuilder {
                 }
                 i++;
             }
-            return new GreedyStateMachine(...stateMachines).asStateMachine();
+            const setStateMachine = new GreedyStateMachine(
+                ...stateMachines
+            ).asStateMachine();
+            if (negate) {
+                return new ConcatStateMachine(
+                    new NotStateMachine(setStateMachine).asStateMachine()
+                ).asStateMachine();
+            }
+            return setStateMachine;
         };
         return {
             createStateMachine,
@@ -76,13 +86,13 @@ export class RegexStateMachineBuilder {
                             new WordStateMachine().asStateMachine()
                         ).asStateMachine()
                     ).asStateMachine();
-            case "s":
-                return () => new WhitespaceStateMachine().asStateMachine();
-            case "S":
+            case "d":
+                return () => new DigitStateMachine().asStateMachine();
+            case "D":
                 return () =>
                     new ConcatStateMachine(
                         new NotStateMachine(
-                            new WhitespaceStateMachine().asStateMachine()
+                            new DigitStateMachine().asStateMachine()
                         ).asStateMachine()
                     ).asStateMachine();
             case "s":
@@ -107,39 +117,62 @@ export class RegexStateMachineBuilder {
         while (fromIndex < toIndex) {
             const char = this.pattern[fromIndex];
             let createStateMachine: () => StateMachine<string, string, string>;
-            if (char === "(") {
-                const group = this.buildGroup(fromIndex);
-                createStateMachine = group.createStateMachine;
-                fromIndex = group.rightBracketIndex;
-            } else if (char === "[") {
-                const set = this.buildSet(fromIndex);
-                createStateMachine = set.createStateMachine;
-                fromIndex = set.rightBracketIndex;
-            } else if (char === "\\") {
-                createStateMachine = this.buildEscaped(fromIndex);
-                fromIndex++;
-            } else {
-                createStateMachine = () =>
-                    new ExactMatchStateMachine(
-                        this.pattern[fromIndex]
-                    ).asStateMachine();
+            switch (char) {
+                case "(":
+                    const group = this.buildGroup(fromIndex);
+                    createStateMachine = group.createStateMachine;
+                    fromIndex = group.rightBracketIndex;
+                    break;
+                case "[":
+                    const set = this.buildSet(fromIndex);
+                    createStateMachine = set.createStateMachine;
+                    fromIndex = set.rightBracketIndex;
+                    break;
+                case "\\":
+                    createStateMachine = this.buildEscaped(fromIndex);
+                    fromIndex++;
+                    break;
+                case ".":
+                    createStateMachine = () =>
+                        new WildcardStateMachine<string>().asStateMachine();
+                    break;
+                default:
+                    createStateMachine = () =>
+                        new ExactMatchStateMachine(char).asStateMachine();
+                    break;
             }
 
             const nextChar = this.pattern[fromIndex + 1];
-            if (nextChar === "*") {
-                stateMachines.push(
-                    new KleeneStarStateMachine(
-                        createStateMachine
-                    ).asStateMachine()
-                );
-            } else if (nextChar === "+") {
-                stateMachines.push(
-                    new KleenePlusStateMachine(
-                        createStateMachine
-                    ).asStateMachine()
-                );
-            } else {
-                stateMachines.push(createStateMachine());
+            switch (nextChar) {
+                case "?":
+                    stateMachines.push(
+                        new ConcatStateMachine(
+                            new OptionalStateMachine(
+                                createStateMachine()
+                            ).asStateMachine()
+                        ).asStateMachine()
+                    );
+                    fromIndex++;
+                    break;
+                case "*":
+                    stateMachines.push(
+                        new KleeneStarStateMachine(
+                            createStateMachine
+                        ).asStateMachine()
+                    );
+                    fromIndex++;
+                    break;
+                case "+":
+                    stateMachines.push(
+                        new KleenePlusStateMachine(
+                            createStateMachine
+                        ).asStateMachine()
+                    );
+                    fromIndex++;
+                    break;
+                default:
+                    stateMachines.push(createStateMachine());
+                    break;
             }
 
             fromIndex++;

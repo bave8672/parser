@@ -1,10 +1,9 @@
 import { Status } from "../../../result/result";
 import { ExactMatchStateMachine } from "../../string/exact_match/exact_match_state_machine";
+import { RegexStateMachine } from "../../string/regex/regex_state_machine";
 import { ArrayStateMachine } from "./array_state_machine";
 
 describe(`Array state machine`, () => {
-    
-
     it(`Simple match example`, () => {
         let matcher = new ArrayStateMachine<string, string, string>(
             new ExactMatchStateMachine('a').asStateMachine(), 
@@ -47,9 +46,9 @@ describe(`Array state machine`, () => {
         }
     });
 
-    xit(`Should pass unmatched inputs to the next machine in the sequence`, () => {
+    it(`Should pass unmatched inputs to the next machine in the sequence`, () => {
         let matcher = new ArrayStateMachine<string, string, string>(
-            new RegexStateMachine(/^a$/).asStateMachine(), 
+            new RegexStateMachine('a*').asStateMachine(), 
             new ExactMatchStateMachine('b').asStateMachine()
         ).asStateMachine();
         if (matcher.status === Status.Pending) {
