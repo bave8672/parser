@@ -1,6 +1,7 @@
 import { GreedyStateMachine } from "../../generic/greedy/greedy_state_machine";
 import { NotStateMachine } from "../../generic/not/not_state_machine";
 import { OptionalStateMachine } from "../../generic/optional/optional_state_machine";
+import { RepeatedStateMachine } from "../../generic/repeated/repeated_state_machine";
 import { StateMachine } from "../../generic/state_machine";
 import { WildcardStateMachine } from "../../generic/wildcard/wildcard_state_machine";
 import { ConcatStateMachine } from "../concat/concat_state_machine";
@@ -109,6 +110,48 @@ export class RegexStateMachineArrayBuilder {
         }
     }
 
+    private buildRepetition({
+        createStateMachine,
+        leftBracketIndex,
+    }: {
+        createStateMachine: () => StateMachine<string, string, string>;
+        leftBracketIndex: number;
+    }) {
+        let rightBracketIndex = leftBracketIndex;
+        let nLeft = "";
+        let nRight = "";
+        let encounteredComma = false;
+        while (this.pattern[++rightBracketIndex] !== "}") {
+            const char = this.pattern[rightBracketIndex];
+            if (char === ",") {
+                encounteredComma = true;
+                continue;
+            } else if (encounteredComma) {
+                nRight += char;
+            } else {
+                nLeft += char;
+            }
+        }
+        const min = nLeft ? Number(nLeft) : 0;
+        const max = encounteredComma
+            ? nRight
+                ? Number(nRight)
+                : Infinity
+            : min;
+        const stateMachine = new ConcatStateMachine(
+            new RepeatedStateMachine({
+                min,
+                max,
+                createChild: createStateMachine,
+                mapError: undefined,
+            }).asStateMachine()
+        ).asStateMachine();
+        return {
+            stateMachine,
+            rightBracketIndex,
+        };
+    }
+
     public build(
         fromIndex = 0,
         toIndex = this.pattern.length
@@ -169,6 +212,11 @@ export class RegexStateMachineArrayBuilder {
                         ).asStateMachine()
                     );
                     fromIndex++;
+                    break;
+                case '{':
+                    const { stateMachine, rightBracketIndex } = this.buildRepetition({ createStateMachine, leftBracketIndex: fromIndex + 1 });
+                    stateMachines.push(stateMachine);
+                    fromIndex = rightBracketIndex;
                     break;
                 default:
                     stateMachines.push(createStateMachine());

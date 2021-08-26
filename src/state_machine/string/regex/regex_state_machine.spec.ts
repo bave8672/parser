@@ -299,6 +299,41 @@ describe(`Regex state machine`, () => {
         });
     });
 
+    describe('Repetitions', () => {
+        testMatch({
+            name: `implements fixed repetitions`,
+            pattern: "a{3}",
+            input: "aaa",
+            match: true,
+            expectedValue: "aaa",
+            expectedUnconsumedInputs: [],
+        });
+        testMatch({
+            name: `implements range repetitions below the limit`,
+            pattern: "a{3,5}",
+            input: "aaab",
+            match: true,
+            expectedValue: "aaa",
+            expectedUnconsumedInputs: ['b'],
+        });
+        testMatch({
+            name: `implements range repetitions reaching the limit`,
+            pattern: "a{3,5}",
+            input: "aaaaa",
+            match: true,
+            expectedValue: "aaaaa",
+            expectedUnconsumedInputs: [],
+        });
+        testMatch({
+            name: `implements an open ended range`,
+            pattern: "a{3,}",
+            input: "aaaab",
+            match: true,
+            expectedValue: "aaaa",
+            expectedUnconsumedInputs: ['b'],
+        });
+    });
+
     describe(`Sets`, () => {
         testMatch({
             name: `Should match an exact match of a set of one`,
