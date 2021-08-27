@@ -1,4 +1,3 @@
-import { Verify } from "crypto";
 import { illegalStateError } from "../../util/illegal_state_error";
 import { AbstractStateMachine } from "../generic/abstract/abstract_state_machine";
 import { ArrayStateMachine } from "../generic/array/array_state_machine";
@@ -16,7 +15,7 @@ import { RegexStateMachine } from "../string/regex/regex_state_machine";
 import { StateMachineId } from "./id";
 import { DtoType, StateMachineDto, ValueDto } from "./type";
 
-export function hydrateStateMachine<I = unknown, V = unknown, E = unknown>(dto: StateMachineDto) {
+export function fromDto<I = unknown, V = unknown, E = unknown>(dto: StateMachineDto) {
     const StateMachine = getStateMachineById(dto.id);
     const args = dto.args.map(hydrate);
     return new StateMachine(args).asStateMachine();
@@ -25,7 +24,7 @@ export function hydrateStateMachine<I = unknown, V = unknown, E = unknown>(dto: 
 function hydrate(dto: StateMachineDto | ValueDto): StateMachine<unknown, unknown, unknown> | unknown {
     switch (dto.type) {
         case DtoType.StateMachine:
-            return hydrateStateMachine(dto);
+            return fromDto(dto);
         case DtoType.Value:
             return hydrateValue(dto);
         default:

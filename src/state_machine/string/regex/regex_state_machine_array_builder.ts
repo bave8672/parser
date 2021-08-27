@@ -5,13 +5,13 @@ import { RepeatedStateMachine } from "../../generic/repeated/repeated_state_mach
 import { StateMachine } from "../../generic/state_machine";
 import { WildcardStateMachine } from "../../generic/wildcard/wildcard_state_machine";
 import { ConcatStateMachine } from "../concat/concat_state_machine";
-import { DigitStateMachine } from "../digit_state_machine/digit_state_machine";
+import { DigitStateMachine } from "../digit/digit_state_machine";
 import { ExactMatchStateMachine } from "../exact_match/exact_match_state_machine";
 import { KleenePlusStateMachine } from "../kleene_plus/kleene_plus_state_machine";
 import { KleeneStarStateMachine } from "../kleene_star/kleene_star_state_machine";
 import { RangeStateMachine } from "../range/range_state_machine";
-import { WhitespaceStateMachine } from "../whitespace_state_machine/whitespace_state_machine";
-import { WordStateMachine } from "../word_state_machine.ts/word_state_machine";
+import { WhitespaceStateMachine } from "../whitespace/whitespace_state_machine";
+import { WordStateMachine } from "../word/word_state_machine";
 
 export class RegexStateMachineArrayBuilder {
     constructor(private readonly pattern: string) {}

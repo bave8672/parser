@@ -2,9 +2,11 @@ import { AbstractStateMachine } from "../../generic/abstract/abstract_state_mach
 
 export class WhitespaceStateMachine extends AbstractStateMachine<string, string, string> {
     protected next(input: string) {
-        switch (input.charCodeAt(0)) {
-            case 9: // tab
-            case 32: // space
+        switch (input) {
+            case ' ':  // space
+            case '\t': // tab
+            case '\n': // newline
+            case '\r': // carriage return
                 this.complete(input);
                 break;
             default:
