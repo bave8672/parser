@@ -4,16 +4,20 @@ import { ConcatStateMachine } from "../../string/concat/concat_state_machine";
 import { DigitStateMachine } from "../../string/digit/digit_state_machine";
 import { ExactMatchStateMachine } from "../../string/exact_match/exact_match_state_machine";
 import { LetterStateMachine } from "../../string/letter/letter_state_machine";
+import { Syntax } from "../../syntax/syntax";
+import { SyntaxStateMachine } from "../../syntax/syntax_state_machine";
 import { SymbolStateMachine } from "../symbol/symbol_state_machine";
+import { EBNFSyntaxType } from "../type/syntax_type";
 
 /**
  * (* EBNF definition: *)
  *
  * character = letter | digit | symbol | "_" ;
  */
-export class CharacterStateMachine extends ConcatStateMachine<string> {
+export class CharacterStateMachine extends SyntaxStateMachine {
     constructor() {
         super(
+            EBNFSyntaxType.Character,
             new ZeroOrMoreStateMachine(() =>
                 new GreedyStateMachine<string, string, string>(
                     new LetterStateMachine().asStateMachine(),
@@ -25,3 +29,5 @@ export class CharacterStateMachine extends ConcatStateMachine<string> {
         );
     }
 }
+
+new CharacterStateMachine().asStateMachine()

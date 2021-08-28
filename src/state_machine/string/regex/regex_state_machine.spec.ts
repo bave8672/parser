@@ -506,7 +506,7 @@ describe(`Regex state machine`, () => {
         expectedValue?: string;
         expectedUnconsumedInputs: string[];
     }) {
-        it(`${spec.name} ::= pattern ${spec.pattern} ${
+        it(`${spec.name} -> pattern ${spec.pattern} ${
             spec.match ? "should" : "should not"
         } match ${spec.input}`, () => {
             let stateMachine;;

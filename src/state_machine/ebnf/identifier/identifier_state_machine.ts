@@ -5,16 +5,19 @@ import { ConcatStateMachine } from "../../string/concat/concat_state_machine";
 import { DigitStateMachine } from "../../string/digit/digit_state_machine";
 import { ExactMatchStateMachine } from "../../string/exact_match/exact_match_state_machine";
 import { LetterStateMachine } from "../../string/letter/letter_state_machine";
+import { SyntaxStateMachine } from "../../syntax/syntax_state_machine";
 import { SymbolStateMachine } from "../symbol/symbol_state_machine";
+import { EBNFSyntaxType } from "../type/syntax_type";
 
 /**
  * (* EBNF definition: *)
  *
  * identifier = letter , { letter | digit | "_" } ;
  */
-export class IdentifierStateMachine extends ConcatStateMachine<string> {
+export class IdentifierStateMachine extends SyntaxStateMachine {
     constructor() {
         super(
+            EBNFSyntaxType.Identifier,
             new ArrayStateMachine(
                 new LetterStateMachine().asStateMachine(),
                 new ConcatStateMachine(

@@ -1,6 +1,7 @@
 import { Status } from "../../../result/result";
+import { assertPending } from "../../util/assert";
 import { AbstractStateMachine } from "../abstract/abstract_state_machine";
-import { PendingStateMachine, StateMachine } from "../state_machine";
+import { StateMachine } from "../state_machine";
 
 /**
  * Generic class for matching multiple state machines against an input simultaneously
@@ -18,7 +19,7 @@ export class LazyStateMachine<I, V, E> extends AbstractStateMachine<I, V, E> {
 
     public next(input: I) {
         for (let child of this.children) {
-            child = (child as PendingStateMachine<I, V, E>).next(input);
+            child = assertPending(child).next(input);
             if (child.status === Status.Error) {
                 this.children.delete(child);
                 if (this.children.size === 0) {

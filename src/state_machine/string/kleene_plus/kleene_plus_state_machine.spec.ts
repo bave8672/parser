@@ -1,5 +1,5 @@
 import { Ok, Status } from "../../../result/result";
-import { PendingStateMachine } from "../../generic/state_machine";
+import { assertPending } from "../../util/assert";
 import { ExactMatchStateMachine } from "../exact_match/exact_match_state_machine";
 import { KleenePlusStateMachine } from "./kleene_plus_state_machine";
 
@@ -8,7 +8,7 @@ describe(`Kleene plus state machine`, () => {
         let state = new KleenePlusStateMachine(() =>
             new ExactMatchStateMachine("a").asStateMachine()
         ).asStateMachine();
-        state = (state as PendingStateMachine<string, string, string>).play(
+        state = assertPending(state).play(
             "a",
             "a",
             "a",
@@ -23,7 +23,7 @@ describe(`Kleene plus state machine`, () => {
         let state = new KleenePlusStateMachine(() =>
             new ExactMatchStateMachine("a").asStateMachine()
         ).asStateMachine();
-        state = (state as PendingStateMachine<string, string, string>).play(
+        state = assertPending(state).play(
             "b"
         );
         expect(state.status).toEqual(Status.Error);

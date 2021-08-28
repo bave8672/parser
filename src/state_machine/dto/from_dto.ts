@@ -1,4 +1,4 @@
-import { illegalStateError } from "../../util/illegal_state_error";
+import { illegalStateError } from "../../common/illegal_state_error";
 import { AbstractStateMachine } from "../generic/abstract/abstract_state_machine";
 import { ArrayStateMachine } from "../generic/array/array_state_machine";
 import { EmptyStateMachine } from "../generic/empty/empty_state_machine";
@@ -13,7 +13,7 @@ import { ExactMatchStateMachine } from "../string/exact_match/exact_match_state_
 import { RangeStateMachine } from "../string/range/range_state_machine";
 import { RegexStateMachine } from "../string/regex/regex_state_machine";
 import { StateMachineId } from "./id";
-import { DtoType, StateMachineDto, ValueDto } from "./type";
+import { DtoType, StateMachineDto, ValueDto } from "./dto";
 
 export function fromDto<I = unknown, V = unknown, E = unknown>(dto: StateMachineDto) {
     const StateMachine = getStateMachineById(dto.id);

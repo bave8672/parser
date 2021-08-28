@@ -1,5 +1,6 @@
 import { Ok, Status } from "../../../result/result";
 import { ExactMatchStateMachine } from "../../string/exact_match/exact_match_state_machine";
+import { assertPending } from "../../util/assert";
 import { PendingStateMachine } from "../state_machine";
 import { LazyStateMachine } from "./lazy_state_machine";
 
@@ -9,8 +10,8 @@ describe(`Greedy state machine`, () => {
             new ExactMatchStateMachine("ab").asStateMachine(),
             new ExactMatchStateMachine("abc").asStateMachine(),
         ).asStateMachine();
-        state = (state as PendingStateMachine<string, string, string>).next('a');
-        state = (state as PendingStateMachine<string, string, string>).next('b');
+        state = assertPending(state).next('a');
+        state = assertPending(state).next('b');
         expect(state.status).toEqual(Status.Ok);
         expect((state as Ok<string>).value).toEqual('ab');
         expect(state.unconsumedInputs).toEqual([]);
@@ -21,9 +22,9 @@ describe(`Greedy state machine`, () => {
             new ExactMatchStateMachine("ab").asStateMachine(),
             new ExactMatchStateMachine("zxy").asStateMachine(),
         ).asStateMachine();
-        state = (state as PendingStateMachine<string, string, string>).next('z');
-        state = (state as PendingStateMachine<string, string, string>).next('x');
-        state = (state as PendingStateMachine<string, string, string>).next('y');
+        state = assertPending(state).next('z');
+        state = assertPending(state).next('x');
+        state = assertPending(state).next('y');
         expect(state.status).toEqual(Status.Ok);
         expect((state as Ok<string>).value).toEqual('zxy');
         expect(state.unconsumedInputs).toEqual([]);
@@ -34,7 +35,7 @@ describe(`Greedy state machine`, () => {
             new ExactMatchStateMachine("ab").asStateMachine(),
             new ExactMatchStateMachine("abc").asStateMachine(),
         ).asStateMachine();
-        state = (state as PendingStateMachine<string, string, string>).next('z');
+        state = assertPending(state).next('z');
         expect(state.status).toEqual(Status.Error);
         expect(state.unconsumedInputs).toEqual(['z']);
     });

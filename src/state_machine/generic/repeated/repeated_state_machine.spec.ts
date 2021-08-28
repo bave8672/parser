@@ -1,6 +1,6 @@
 import { Ok, Status } from "../../../result/result";
 import { ExactMatchStateMachine } from "../../string/exact_match/exact_match_state_machine";
-import { PendingStateMachine } from "../state_machine";
+import { assertPending } from "../../util/assert";
 import { RepeatedStateMachine } from "./repeated_state_machine";
 
 describe(`Zero or more state machine`, () => {
@@ -11,7 +11,7 @@ describe(`Zero or more state machine`, () => {
             createChild: () => new ExactMatchStateMachine("a").asStateMachine(),
             mapError: undefined,
         }).asStateMachine();
-        state = (state as PendingStateMachine<string, string[], string>).next(
+        state = assertPending(state).next(
             "b"
         );
         expect(state.status).toEqual(Status.Ok);
@@ -26,7 +26,7 @@ describe(`Zero or more state machine`, () => {
                 new ExactMatchStateMachine("aa").asStateMachine(),
             mapError: undefined,
         }).asStateMachine();
-        state = (state as PendingStateMachine<string, string[], string>).play(
+        state = assertPending(state).play(
             ..."aaab"
         );
         expect(state.status).toEqual(Status.Ok);
@@ -41,7 +41,7 @@ describe(`Zero or more state machine`, () => {
             createChild: () => new ExactMatchStateMachine("a").asStateMachine(),
             mapError: undefined,
         }).asStateMachine();
-        state = (state as PendingStateMachine<string, string[], string>).play(
+        state = assertPending(state).play(
             ..."aaab"
         );
         expect(state.status).toEqual(Status.Ok);
@@ -56,7 +56,7 @@ describe(`Zero or more state machine`, () => {
             createChild: () => new ExactMatchStateMachine("a").asStateMachine(),
             mapError: undefined,
         }).asStateMachine();
-        state = (state as PendingStateMachine<string, string[], string>).play(
+        state = assertPending(state).play(
             ..."aab"
         );
         expect(state.status).toEqual(Status.Error);
@@ -70,7 +70,7 @@ describe(`Zero or more state machine`, () => {
             createChild: () => new ExactMatchStateMachine("a").asStateMachine(),
             mapError: undefined,
         }).asStateMachine();
-        state = (state as PendingStateMachine<string, string[], string>).play(
+        state = assertPending(state).play(
             ..."aaaa"
         );
         expect(state.status).toEqual(Status.Ok);

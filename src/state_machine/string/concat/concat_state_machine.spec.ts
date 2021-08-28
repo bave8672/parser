@@ -1,6 +1,5 @@
 import { Ok, Status } from "../../../result/result";
-import { ArrayStateMachine } from "../../generic/array/array_state_machine";
-import { PendingStateMachine } from "../../generic/state_machine";
+import { assertPending } from "../../util/assert";
 import { ExactMatchStateMachine } from "../exact_match/exact_match_state_machine";
 import { ConcatStateMachine } from "./concat_state_machine";
 
@@ -11,7 +10,7 @@ describe(`Concat state machine`, () => {
             new ExactMatchStateMachine("bc").asStateMachine(),
             new ExactMatchStateMachine("123").asStateMachine()
         ).asStateMachine();
-        state = (state as PendingStateMachine<string, string, string>).play(
+        state = assertPending(state).play(
             "a",
             "b",
             "c",
@@ -30,7 +29,7 @@ describe(`Concat state machine`, () => {
             new ExactMatchStateMachine("bc").asStateMachine(),
             new ExactMatchStateMachine("123").asStateMachine()
         ).asStateMachine();
-        state = (state as PendingStateMachine<string, string, string>).play(
+        state = assertPending(state).play(
             "a",
             "b",
             "c",

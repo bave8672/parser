@@ -2,7 +2,7 @@ import { AbstractStateMachine } from "../generic/abstract/abstract_state_machine
 import { NotStateMachine } from "../generic/not/not_state_machine";
 import { ExactMatchStateMachine } from "../string/exact_match/exact_match_state_machine";
 import { StateMachineId } from "./id";
-import { DtoType, StateMachineDto, ValueDto, Dto, DtoArgs, StateMachineConstructor, StateMachineConstructorArgs } from "./type";
+import { DtoType, StateMachineDto, ValueDto, Dto, DtoArgs, StateMachineConstructor, StateMachineConstructorArgs } from "./dto";
 
 export function toDto<T>(
     arg: T,
